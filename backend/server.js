@@ -1,62 +1,72 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2');
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
 
 const app = express();
+const PORT = 5000;
+
+
 app.use(cors());
 app.use(express.json());
 
+// MySQL Database
 const db = mysql.createConnection({
     host: "localhost",
-    user: "root",
-    password: "",
-    database: "react_db"
+    user: "root",  
+    password: "",  
+    database: "myreact_db",
+    port: "4306"
 });
 
 db.connect(err => {
     if (err) {
-        console.error('Database connection failed:', err);
+        console.error("Database connection failed: ", err);
         return;
     }
-    console.log('Connected to MySQL');
+    console.log("Connected to MySQL database.");
 });
 
-// Get all schedules
-app.get('/schedules', (req, res) => {
-    db.query('SELECT * FROM schedule', (err, results) => {
+
+// GET
+app.get("/course", (req, res) => {
+    db.query("SELECT * FROM course", (err, results) => {
         if (err) {
-            return res.status(500).send(err);
+            res.status(500).json({ error: err.message });
+            return;
         }
         res.json(results);
     });
 });
 
-// Add new schedule
-app.post('/schedules', (req, res) => {
+// POST or ADD
+app.post("/course", (req, res) => {
     const { subject, day, time, room } = req.body;
-    db.query(
-        'INSERT INTO schedule (subject, day, time, room) VALUES (?, ?, ?, ?)',
-        [subject, day, time, room],
-        (err, result) => {
-            if (err) {
-                return res.status(500).send(err);
-            }
-            res.json({ id: result.insertId, subject, day, time, room });
-        }
-    );
-});
+    if (!subject || !day || !time || !room) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
 
-// Delete a schedule
-app.delete('/schedules/:id', (req, res) => {
-    const { id } = req.params;
-    db.query('DELETE FROM schedule WHERE id = ?', [id], (err, result) => {
+    const sql = "INSERT INTO course (subject, day, time, room) VALUES (?, ?, ?, ?)";
+    db.query(sql, [subject, day, time, room], (err, result) => {
         if (err) {
-            return res.status(500).send(err);
+            res.status(500).json({ error: err.message });
+            return;
         }
-        res.json({ message: 'Deleted successfully' });
+        res.json({ id: result.insertId, subject, day, time, room });
     });
 });
 
-const PORT = 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// DELETE
+app.delete("/course/:id", (req, res) => {
+    const { id } = req.params;
+    db.query("DELETE FROM course WHERE id = ?", [id], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ message: "Schedule deleted successfully" });
+    });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on ${PORT}`);
+});

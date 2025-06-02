@@ -29,7 +29,7 @@ db.connect(err => {
 
 // GET
 app.get("/course", (req, res) => {
-    db.query("SELECT * FROM course", (err, results) => {
+    db.query("SELECT * FROM schedules", (err, results) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
@@ -45,7 +45,7 @@ app.post("/course", (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const sql = "INSERT INTO course (subject, day, time, room) VALUES (?, ?, ?, ?)";
+    const sql = "INSERT INTO schedules (subject, day, time, room) VALUES (?, ?, ?, ?)";
     db.query(sql, [subject, day, time, room], (err, result) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -58,7 +58,7 @@ app.post("/course", (req, res) => {
 // DELETE
 app.delete("/course/:id", (req, res) => {
     const { id } = req.params;
-    db.query("DELETE FROM course WHERE id = ?", [id], (err, result) => {
+    db.query("DELETE FROM schedules WHERE id = ?", [id], (err, result) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;

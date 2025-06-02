@@ -52,7 +52,7 @@ function App() {
 
     return (
         <div style={{ textAlign: "center", padding: "20px" }}>
-            <h1>React + Express REST API</h1>
+            <h1>BSIT CLASS SCHEDULE</h1>
             <div>
                 <input placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
                 <input placeholder="Day" value={day} onChange={(e) => setDay(e.target.value)} />
